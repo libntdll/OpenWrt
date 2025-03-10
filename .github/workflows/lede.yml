@@ -152,7 +152,7 @@ jobs:
       run: |
         source $GITHUB_WORKSPACE/common.sh && do_diy
       
-    - name: SSH远程连接（make menuconfig）
+    - name: SSH远程连接(make menuconfig)
       if: env.ENABLE_SSH == 'true'
       uses: danshui-git/debugger-action@main
       

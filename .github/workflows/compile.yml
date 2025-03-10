@@ -55,21 +55,6 @@ jobs:
         chmod +x $GITHUB_WORKSPACE/common.sh
         source $GITHUB_WORKSPACE/common.sh && parse_settings
         
-    - name: 编译开始TG或pushplus通知
-      if: env.PUSH_PLUS_TOKEN && env.NOTICE_TYPE == 'PUSH' || env.TELEGRAM_CHAT_ID && env.TELEGRAM_BOT_TOKEN && env.NOTICE_TYPE == 'TG'
-      run: |
-        source $GITHUB_WORKSPACE/common.sh && notice_begin
-
-    - name: 释放磁盘空间
-      uses: jlumbroso/free-disk-space@main
-      with:
-        tool-cache: true
-        android: true
-        dotnet: true
-        haskell: true
-        large-packages: true
-        swap-storage: true
-        
     - name: 部署编译环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -82,7 +67,7 @@ jobs:
         source $GITHUB_WORKSPACE/common.sh && git_clone_source
         
     - name: 缓存加速
-      if: env.ENABLE_CCACHE == 'true' || env.ENABLE_CCACHE == 'normal' || env.ENABLE_CCACHE == 'fast'
+      if: env.ENABLE_CCACHE == 'true'
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
