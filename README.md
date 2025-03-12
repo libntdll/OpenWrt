@@ -47,15 +47,25 @@
 
 ---
 
+#### PVE lxc容器Openwrt
 
-  - PVE lxc容器Openwrt
+1、下载openwrt至PVE
 
+```shell
+wget https://gh-proxy.com/https://raw.githubusercontent.com/libntdll/openwrt/main/openwrt -O /usr/bin/openwrt && chmod +x /usr/bin/openwrt
+```
 
-    - 《[lxc容器OpenWrt一键安装、更新](https://github.com/libntdll/pve)》
+2、PVE命令行运行脚本
 
-  - 普通OpenWrt
+```shell
+openwrt
+```
+
+<br />
+
+#### 普通OpenWrt
 
 
     - 命令行输入`autoupdate`更新，详见其命令行说明；或使用`luci-app-autoupdate`插件更新(编译默认安装)
 
-​    <br />
+<br />
