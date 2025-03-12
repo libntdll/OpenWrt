@@ -52,7 +52,7 @@
 1、下载openwrt至PVE
 
 ```shell
-wget https://gh-proxy.com/https://raw.githubusercontent.com/libntdll/openwrt/main/openwrt -O /usr/bin/openwrt && chmod +x /usr/bin/openwrt
+wget https://gh-proxy.com/https://raw.githubusercontent.com/libntdll/openwrt/main/shell/openwrt -O /usr/bin/openwrt && chmod +x /usr/bin/openwrt
 ```
 
 2、PVE命令行运行脚本

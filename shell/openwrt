@@ -22,13 +22,13 @@ Proxy_Secondary="https://github.moeyy.xyz"
 CDN_Jsdelivr="https://cdn.jsdelivr.net/gh"
 Mirror_Fastgit="https://download.fastgit.org"
 
-URL_Version_Origin="https://raw.githubusercontent.com/libntdll/openwrt/main/version"
+URL_Version_Origin="https://raw.githubusercontent.com/libntdll/openwrt/main/shell/version"
 URL_Version_Primary="$Proxy_Primary/$URL_Version_Origin"
-URL_Version_Secondary="$CDN_Jsdelivr/libntdll/openwrt/version"
+URL_Version_Secondary="$CDN_Jsdelivr/libntdll/openwrt/shell/version"
 
-URL_Script_Origin="https://raw.githubusercontent.com/libntdll/openwrt/main/openwrt"
+URL_Script_Origin="https://raw.githubusercontent.com/libntdll/openwrt/main/shell/openwrt"
 URL_Script_Primary="$Proxy_Primary/$URL_Script_Origin"
-URL_Script_Secondary="$CDN_Jsdelivr/libntdll/openwrt/openwrt"
+URL_Script_Secondary="$CDN_Jsdelivr/libntdll/openwrt/shell/openwrt"
 
 
 function __error_msg() {
@@ -844,7 +844,7 @@ function install_tools(){
 
 function script_version() {
     [[ ! -d $Script_Path ]] && mkdir -p $Script_Path || rm -rf $Script_Path/*
-    [[ -z $Google_check ]] && network_check    
+    [[ -z $Google_check ]] && network_check
     if [[ $Google_check -eq 301 ]];then
         wget -q --timeout=5 --tries=2 $URL_Version_Origin -O $Script_Path/version
         if [[ $? -ne 0 ]];then
@@ -873,6 +873,7 @@ function script_download() {
             curl -fsSL $URL_Script_Origin -o $Script_Path/openwrt
             if [[ $? -ne 0 ]];then
                 __error_msg "脚本更新失败, 请检查网络, 重试! "
+                pause
                 return
             fi
         fi
@@ -882,6 +883,7 @@ function script_download() {
             wget -q --timeout=5 --tries=2 $URL_Script_Secondary -O $Script_Path/openwrt
             if [[ $? -ne 0 ]];then
                 __error_msg "脚本更新失败, 请检查网络, 重试! "
+                pause
                 return
             fi
         fi
@@ -902,6 +904,7 @@ function script_udpate() {
     
     if [[ -z $LatestVersion ]]; then
         __error_msg "获取版本信息失败, 或网络不稳定, 请稍后再试! "
+        pause
         return
     fi
     
@@ -987,7 +990,7 @@ function linux_uname(){
         echo "────────────────────────────────────────────────────────────────────────────"
         echo
         echo "第1步: PVE命令行下载文件"
-        __green_color "wget $Proxy_Primary/https://raw.githubusercontent.com/libntdll/openwrt/main/openwrt -O /usr/bin/openwrt && chmod +x /usr/bin/openwrt"
+        __green_color "wget $Proxy_Primary/https://raw.githubusercontent.com/libntdll/openwrt/main/shell/openwrt -O /usr/bin/openwrt && chmod +x /usr/bin/openwrt"
         echo
         echo "第2步: PVE命令行输入"
         __green_color "openwrt"
