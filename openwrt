@@ -6,7 +6,7 @@
 # Please run this script in the PVE system command line.
 ##########################################################
 
-Version=v2.1.5
+Version=v2.1.6
 
 Settings_File="/etc/openwrt.conf"
 Upgrade_File="/etc/openwrt.upgrade"
@@ -900,7 +900,7 @@ function script_udpate() {
         source $Script_Path/version 2 > /dev/null
     fi
     
-    if [[ -z $LatestVersion_Openwrt ]]; then
+    if [[ -z $LatestVersion ]]; then
         __error_msg "获取版本信息失败, 或网络不稳定, 请稍后再试! "
         return
     fi
@@ -910,7 +910,7 @@ function script_udpate() {
 cat <<-EOF
 `__green_color "     OpenWrt自动安装升级脚本  $Version"`
 ┌────────────────────────────────────────────────────┐
-      最新版本: $LatestVersion_Openwrt
+      最新版本: $LatestVersion
       当前版本: $Version
 └────────────────────────────────────────────────────┘
 EOF
