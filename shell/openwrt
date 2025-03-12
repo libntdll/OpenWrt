@@ -6,7 +6,7 @@
 # Please run this script in the PVE system command line.
 ##########################################################
 
-Version=v2.1.6
+Version=v2.1.7
 
 Settings_File="/etc/openwrt.conf"
 Upgrade_File="/etc/openwrt.upgrade"
@@ -842,56 +842,74 @@ function install_tools(){
     done
 }
 
-function script_version() {
-    [[ ! -d $Script_Path ]] && mkdir -p $Script_Path || rm -rf $Script_Path/*
-    [[ -z $Google_check ]] && network_check
-    if [[ $Google_check -eq 301 ]];then
-        wget -q --timeout=5 --tries=2 $URL_Version_Origin -O $Script_Path/version
-        if [[ $? -ne 0 ]];then
-            curl -fsSL $URL_Version_Origin -o $Script_Path/version
-            if [[ $? -ne 0 ]]; then
-                return
-            fi
-        fi
-    else
-        wget -q --timeout=5 --tries=2 $URL_Version_Primary -O $Script_Path/version
+function download_with_retry() {
+    local url=$1
+    local output=$2
+    local error_output=""
+    
+    wget -q --timeout=5 --tries=2 "$url" -O "$output" 2>&1 > /dev/null
+    if [[ $? -ne 0 ]]; then
+        error_output=$(curl -fsSL "$url" -o "$output" 2>&1)
         if [[ $? -ne 0 ]]; then
-            wget -q --timeout=5 --tries=2 $URL_Version_Secondary -O $Script_Path/version
-            if [[ $? -ne 0 ]]; then
-                return
-            fi
+            echo "$error_output"
+            return 1
         fi
+    fi
+    return 0
+}
+
+function script_version() {
+    local version_path="$Script_Path/version"
+    local error_msg=""
+
+    [[ ! -d $Script_Path ]] && mkdir -p $Script_Path || rm -rf $Script_Path/*
+
+    [[ -z $Google_check ]] && network_check
+
+    if [[ $Google_check -eq 301 ]]; then
+        error_msg=$(download_with_retry "$URL_Version_Origin" "$version_path")
+    else
+        error_msg=$(download_with_retry "$URL_Version_Primary" "$version_path")
+        if [[ $? -ne 0 ]]; then
+            error_msg=$(download_with_retry "$URL_Version_Secondary" "$version_path")
+        fi
+    fi
+
+    if [[ $? -ne 0 ]]; then
+        __error_msg "获取版本信息失败, 或网络不稳定, 请稍后再试! 错误信息: $error_msg"
+        pause
+        return
     fi
     
     chmod +x $Script_Path/version
 }
 
 function script_download() {
-    if [[ $Google_check -eq 301 ]];then
-        wget -q --timeout=5 --tries=2 $URL_Script_Origin -O $Script_Path/openwrt
-        if [[ $? -ne 0 ]];then
-            curl -fsSL $URL_Script_Origin -o $Script_Path/openwrt
-            if [[ $? -ne 0 ]];then
-                __error_msg "脚本更新失败, 请检查网络, 重试! "
-                pause
-                return
-            fi
-        fi
+    local script_path="$Script_Path/openwrt"
+    local error_msg=""
+
+    if [[ $Google_check -eq 301 ]]; then
+        error_msg=$(download_with_retry "$URL_Script_Origin" "$script_path")
     else
-        wget -q --timeout=5 --tries=2 $URL_Script_Primary -O $Script_Path/openwrt
+        error_msg=$(download_with_retry "$URL_Script_Primary" "$script_path")
         if [[ $? -ne 0 ]]; then
-            wget -q --timeout=5 --tries=2 $URL_Script_Secondary -O $Script_Path/openwrt
-            if [[ $? -ne 0 ]];then
-                __error_msg "脚本更新失败, 请检查网络, 重试! "
-                pause
-                return
-            fi
+            error_msg=$(download_with_retry "$URL_Script_Secondary" "$script_path")
         fi
     fi
-    
-    if [[ -s $Script_Path/openwrt ]];then
-        cp -f $Script_Path/openwrt /usr/bin/openwrt && chmod +x /usr/bin/openwrt
+
+    if [[ $? -ne 0 ]]; then
+        __error_msg "脚本更新失败,  或网络不稳定, 请稍后再试! 错误信息: $error_msg"
+        pause
+        return
+    fi
+
+    if [[ -s $script_path ]]; then
+        cp -f "$script_path" /usr/bin/openwrt && chmod +x /usr/bin/openwrt
         __success_msg "脚本更新成功, 请退出重新运行! "
+    else
+        __error_msg "下载的脚本文件为空, 或网络不稳定, 请稍后再试! "
+        pause
+        return
     fi
 }
 
@@ -901,13 +919,7 @@ function script_udpate() {
     if [[ -s $Script_Path/version ]]; then
         source $Script_Path/version 2 > /dev/null
     fi
-    
-    if [[ -z $LatestVersion ]]; then
-        __error_msg "获取版本信息失败, 或网络不稳定, 请稍后再试! "
-        pause
-        return
-    fi
-    
+
     while :; do
         clear
 cat <<-EOF
