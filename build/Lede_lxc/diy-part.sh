@@ -2,11 +2,11 @@
 
 echo "--------------diy_part_sh start--------------"
 echo
-cd ${HOME_PATH}
+cd "${HOME_PATH}" || exit
 
 ##########################################修改设置###################################################
 # 修改IP设置,固件首次运行一次性脚本
-cat >> ${FILE_DEFAULT_UCI} <<-EOF
+cat >>"${FILE_DEFAULT_UCI}" <<-EOF
 #uci delete network.wan                                         # 删除wan口
 #uci delete network.wan6                                        # 删除wan6口
 #uci delete network.lan.type                                    # 关闭桥接选项(同下步互斥)
@@ -59,7 +59,7 @@ uci commit ttyd
 EOF
 
 if [[ -n "${ZZZ_PATH}" ]]; then  
-	echo '增加个性名字 ${GITHUB_ACTOR} 默认为你的github帐号'
+	echo "增加个性名字 ${GITHUB_ACTOR} 默认为你的github帐号"
 	# sed -i "s/LEDE ${GITHUB_ACTOR} compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt /g" ${ZZZ_PATH}
 	sed -i "s/LEDE /Ss. compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt /g" ${ZZZ_PATH}
 fi
@@ -68,7 +68,7 @@ fi
 #echo NEW_KERNEL_PATCHVER="6.1" >> ${GITHUB_ENV}
 
 ##########################################添加插件###################################################
-pushd ${HOME_PATH}/package > /dev/null
+pushd "${HOME_PATH}"/package >/dev/null || exit
 # 以下为示例
 
 #echo "添加插件 luci-app-passwall"
@@ -87,16 +87,16 @@ pushd ${HOME_PATH}/package > /dev/null
 #echo "添加主题 new theme neobird"
 #git clone https://github.com/thinktip/luci-theme-neobird.git
 
-popd > /dev/null
+popd >/dev/null || exit
 ##########################################修改插件名字###################################################
-pushd ${HOME_PATH}/feeds > /dev/null
+pushd "${HOME_PATH}"/feeds >/dev/null || exit
 # 以下为示例
 
 # 修改feeds目录下插件名字
 #sed -i 's/"Argon 主题设置"/"Argon设置"/g' `grep "Argon 主题设置" -rl ./`
 #sed -i 's/"Turbo ACC 网络加速"/"Turbo ACC"/g' `grep "Turbo ACC 网络加速" -rl ./`
 
-popd > /dev/null
+popd >/dev/null || exit
 ##########################################删除文件###################################################
 # 在线更新删除不想保留固件的某个文件,在EOF跟EOF直接加入删除代码,比如： rm /etc/config/luci,rm /etc/opkg/distfeeds.conf
 #cat >> ${FILES_TO_DELETE} <<-EOF
@@ -104,7 +104,7 @@ popd > /dev/null
 #EOF
 
 # 整理固件包时候,删除您不想要的固件或者文件,让它不需要上传到Actions空间
-cat >> ${FILES_TO_CLEAR} <<-EOF
+cat >>"${FILES_TO_CLEAR}" <<-EOF
 config.buildinfo
 feeds.buildinfo
 openwrt-x86-64-generic-kernel.bin
