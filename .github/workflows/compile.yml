@@ -87,7 +87,7 @@ jobs:
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
-        mixkey: "${{ env.MATRIX_TARGET }}"
+        mixkey: "${{ env.SOURCE }}-${{ env.LUCI_EDITION }}"
         prefix: ${{ env.HOME_PATH }}
         
     - name: 更新源,补丁和自定义设置
