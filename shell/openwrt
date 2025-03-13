@@ -3,7 +3,7 @@
 # URL: https://github.com/libntdll/openwrt
 # Description: AutoUpdate for Openwrt
 # Author: Ss.
-# Please run this script in the PVE system command line.
+# Please run the script via the PVE command line.
 ##########################################################
 
 Version=v2.1.8
@@ -921,7 +921,7 @@ function script_udpate() {
     while :; do
         clear
         cat <<-EOF
-`__green_color "     OpenWrt自动安装升级脚本  $Version"`
+$(__green_color "     OpenWrt自动安装升级脚本  $Version")
 ┌────────────────────────────────────────────────────┐
       最新版本: $LatestVersion
       当前版本: $Version
@@ -951,7 +951,7 @@ function script_help() {
     cat <<-EOF
     =============================================================================================
 
-    `__yellow_color "1. 固件编译"`
+    $(__yellow_color "1. 固件编译")
 
         a. 编译前
            make meunconfig --> targert images --> 选中 [*] tar.gz, 编译openwrt...rootfs.tar.gz
@@ -964,7 +964,7 @@ function script_help() {
 
     ---------------------------------------------------------------------------------------------
 
-    `__yellow_color "2. 网络接口"`
+    $(__yellow_color "2. 网络接口")
 
         网络接口数量>1时, 需自建网络接口.
         网络接口数量1: 无需创建, 使用PVE系统默认vmbr0; 
@@ -976,7 +976,7 @@ function script_help() {
 
     ---------------------------------------------------------------------------------------------
 
-    `__yellow_color "3. 设置保存"`
+    $(__yellow_color "3. 设置保存")
 
         a. 首次运行脚本, 如需保留的OpenWrt配置文件, 请在OpenWrt系统/etc/sysupgrade.conf文件中添加; 
            格式如下: 
