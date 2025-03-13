@@ -6,7 +6,7 @@
 # Please run this script in the PVE system command line.
 ##########################################################
 
-Version=v2.1.7
+Version=v2.1.8
 
 Settings_File="/etc/openwrt.conf"
 Upgrade_File="/etc/openwrt.upgrade"
@@ -29,7 +29,6 @@ URL_Version_Secondary="$CDN_Jsdelivr/libntdll/openwrt/shell/version"
 URL_Script_Origin="https://raw.githubusercontent.com/libntdll/openwrt/main/shell/openwrt"
 URL_Script_Primary="$Proxy_Primary/$URL_Script_Origin"
 URL_Script_Secondary="$CDN_Jsdelivr/libntdll/openwrt/shell/openwrt"
-
 
 function __error_msg() {
     echo -e "\033[31m[ERROR]\033[0m $*"
@@ -65,7 +64,7 @@ function __white_color() {
     echo -e "\033[37m$*\033[0m"
 }
 
-function pause(){
+function pause() {
     echo
     read -n 1 -p "Press any key to continue..." input
     if [[ -n $input ]]; then
@@ -75,9 +74,9 @@ function pause(){
 
 function settings_init() {
     [[ ! -d $Openwrt_Path ]] && mkdir -p $Openwrt_Path
-    
+
     if [[ ! -f $Settings_File ]]; then
-cat > $Settings_File <<-EOF
+        cat >$Settings_File <<-EOF
 Repository="libntdll/openwrt"
 Tag_name="AutoUpdate-x86-lxc"
 Github_api="zzz_api"
@@ -168,7 +167,6 @@ EOF
             default_settings+=("LXC 网络接口数量")
         fi
 
-
         if [[ $need_settings_save == "true" ]]; then
             if [ ${#default_settings[@]} -gt 0 ]; then
                 __warning_msg "以下配置项未设置, 已自动应用默认值, 并将保存至 $Settings_File 配置文件: "
@@ -194,10 +192,10 @@ function settings_load() {
 
 function settings_modify() {
     while :; do
-    settings_load
-    clear
-cat <<-EOF
-`__green_color "     OpenWrt自动安装升级脚本  $Version"`
+        settings_load
+        clear
+        cat <<-EOF
+$(__green_color "     OpenWrt自动安装升级脚本  $Version")
 ┌────────────────────────────────────────────────────┐
       仓库地址: $Repository
       TAG 名称: $Tag_name
@@ -219,7 +217,7 @@ EOF
         read -t 60 enable_settings_modify
         enable_settings_modify=${enable_settings_modify:-n}
         case $enable_settings_modify in
-        y|Y)
+        y | Y)
             set_github_repository
             set_release_tag
             set_release_api
@@ -235,19 +233,19 @@ EOF
             settings_save
             pause
             break
-        ;;
-        n|N)
+            ;;
+        n | N)
             break
-        ;;
+            ;;
         *)
             __error_msg "输入错误, 请重新输入! "
-        ;;
+            ;;
         esac
     done
 }
 
 function settings_save() {
-cat > $Settings_File <<-EOF
+    cat >$Settings_File <<-EOF
 Repository="$Repository"
 Tag_name="$Tag_name"
 Github_api="$Github_api"
@@ -317,18 +315,18 @@ function set_firmware_format() {
         0)
             Priority="default"
             break
-        ;;
+            ;;
         1)
             Priority=".tar.gz"
             break
-        ;;
+            ;;
         2)
             Priority=".img.gz"
             break
-        ;;
+            ;;
         *)
             __error_msg "输入错误, 请重新输入! "
-        ;;
+            ;;
         esac
     done
 }
@@ -338,13 +336,13 @@ function network_check() {
     local code="$(curl -I -s --connect-timeout 3 google.com -w %{http_code} | tail -n1)"
 
     if [[ $(cat $Settings_File | grep -c "Google_check") -eq 0 ]]; then
-        echo Google_check=$code >> $Settings_File
+        echo Google_check=$code >>$Settings_File
     elif [[ "$code" != "$Google_check" ]]; then
         sed -i "s/^Google_check=.*/Google_check=$code/g" $Settings_File
     fi
 }
 
-function release_choose(){
+function release_choose() {
     echo
     local firmware_list_multi="$Firmware_Path/firmware_list_multi"
     local firmware_list_tar="$Firmware_Path/firmware_list_tar"
@@ -352,10 +350,10 @@ function release_choose(){
     local firmware_multi=$(grep -E "\"name\"" $Firmware_Path/$Github_api | grep -i -Eo ".*rootfs.*\.gz" | sed "s/ //g" | sed "s/\"//g" | awk -F ':' '{print $2;}' | sort -r)
     local firmware_tar=$(echo "$firmware_multi" | grep -i -E ".*\.tar.*\.gz")
     local firmware_img=$(echo "$firmware_multi" | grep -i -E ".*\.img.*\.gz")
-    echo "$firmware_multi" > $firmware_list_multi
-    echo "$firmware_tar" > $firmware_list_tar
-    echo "$firmware_img" > $firmware_list_img
-    
+    echo "$firmware_multi" >$firmware_list_multi
+    echo "$firmware_tar" >$firmware_list_tar
+    echo "$firmware_img" >$firmware_list_img
+
     if [[ $Priority == ".tar.gz" ]]; then
         firmware_list=$firmware_list_tar
     elif [[ $Priority == ".img.gz" ]]; then
@@ -363,18 +361,18 @@ function release_choose(){
     else
         firmware_list=$firmware_list_multi
     fi
-    
+
     echo "Github云端固件:"
     nl "$firmware_list"
     if [[ -z $firmware_list ]]; then
         __error_msg "当前云端固件列表为空, 请检查! "
         exit 1
     fi
-    
+
     while :; do
         read -t 120 -p "请输入固件对应序号 [默认1]:" input_release
         input_release=${input_release:-1}
-        check_input_release=`echo $input_release | sed 's/[0-9]//g'`
+        check_input_release="${input_release//[0-9]/}"
         if [[ -n $check_input_release ]]; then
             __error_msg "输入错误, 请输入数字! "
         elif [[ $input_release -eq 0 ]] || [[ $input_release -gt $(cat $firmware_list | wc -l) ]]; then
@@ -387,27 +385,27 @@ function release_choose(){
     done
 }
 
-function ct_update(){
+function ct_update() {
     settings_load
     [[ ! -d $Firmware_Path ]] && mkdir -p $Firmware_Path || rm -rf $Firmware_Path/*
     echo
     __yellow_color "下载OpenWrt固件"
-    
-    ping 223.5.5.5 -c 1 -W 2 > /dev/null 2>&1
+
+    ping 223.5.5.5 -c 1 -W 2 >/dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         __error_msg "网络连接错误!"
         exit 1
     fi
-    
+
     echo
     __green_color "获取固件API信息..."
     rm -rf $Firmware_Path/$Github_api
     [[ -z $Google_check ]] && network_check
-    if [[ $Google_check -eq 301 ]];then
+    if [[ $Google_check -eq 301 ]]; then
         wget -q --timeout=5 --tries=2 $URL_Github_Api -O $Firmware_Path/$Github_api
-        if [[ $? -ne 0 ]];then
+        if [[ $? -ne 0 ]]; then
             curl -fsSL $URL_Github_Api -o $Firmware_Path/$Github_api
-            if [[ $? -ne 0 ]];then
+            if [[ $? -ne 0 ]]; then
                 __error_msg "直连github获取固件API信息失败, 请检测网络, 或网址是否正确! "
                 exit 1
             fi
@@ -416,37 +414,37 @@ function ct_update(){
         wget -q --timeout=5 --tries=2 "$URL_Release_Primary/$Github_api" -O $Firmware_Path/$Github_api
         if [[ $? -ne 0 ]]; then
             wget -q --timeout=5 --tries=2 "$URL_Release_Secondary/$Github_api" -O $Firmware_Path/$Github_api
-            if [[ $? -ne 0 ]];then
+            if [[ $? -ne 0 ]]; then
                 __error_msg "通过代理获取固件API信息失败, 请检测网络, 或网址是否正确! "
                 exit 1
             fi
         fi
     fi
     __success_msg "获取固件API信息成功! "
-    
+
     # 选择固件
     release_choose
-    
+
     # 下载固件
     local firmware_ext=${Firmware_to_download:0-7:7}
     local firmware_downloaded="openwrt.rootfs$firmware_ext"
 
     echo
     __green_color "开始下载固件..."
-    if [[ -n $Firmware_to_download ]];then
-        if [[ $Google_check -eq 301 ]];then
+    if [[ -n $Firmware_to_download ]]; then
+        if [[ $Google_check -eq 301 ]]; then
             wget -q --timeout=5 --tries=2 --show-progress $URL_Release_Origin/$Firmware_to_download -O $Firmware_Path/$firmware_downloaded
-            if [[ $? -ne 0 ]];then
+            if [[ $? -ne 0 ]]; then
                 __error_msg "获取固件失败, 请检测网络, 或者网址是否正确! "
                 exit 1
             fi
         else
             echo "通过$Proxy_Primary/代理下载固件中..."
             wget -q --timeout=5 --tries=2 --show-progress $URL_Release_Primary/$Firmware_to_download -O $Firmware_Path/$firmware_downloaded
-            if [[ $? -ne 0 ]];then
+            if [[ $? -ne 0 ]]; then
                 echo "通过$Proxy_Secondary/代理下载固件中..."
                 wget -q --timeout=5 --tries=2 --show-progress $URL_Release_Secondary/$Firmware_to_download -O $Firmware_Path/$firmware_downloaded
-                if [[ $? -ne 0 ]];then
+                if [[ $? -ne 0 ]]; then
                     __error_msg "固件下载失败, 请检测网络, 或者网址是否正确! "
                     exit 1
                 fi
@@ -458,14 +456,13 @@ function ct_update(){
         __error_msg "已选为空, 未知错误"
         exit 1
     fi
-    
 
     echo
     __yellow_color "更新OpenWrt CT模板"
     if [[ -f /var/lib/vz/template/cache/openwrt.rootfs.tar.gz ]]; then
         rm -f /var/lib/vz/template/cache/openwrt.rootfs.tar.gz
     fi
-    
+
     if [[ $firmware_ext == ".tar.gz" ]]; then
         mv -f $Firmware_Path/$firmware_downloaded /var/lib/vz/template/cache/
         __success_msg "CT模板: 上传成功! "
@@ -478,7 +475,7 @@ function ct_update(){
     fi
 }
 
-function set_pct_id(){
+function set_pct_id() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt容器ID [默认100]:" input_id || echo
@@ -486,7 +483,7 @@ function set_pct_id(){
 
         if ! [[ $input_id =~ ^[0-9]+$ ]]; then
             __error_msg "输入错误, 请输入数字! "
-        elif (( input_id < 100 )); then
+        elif ((input_id < 100)); then
             __error_msg "当前输入ID<100, 请重新输入! "
         else
             Lxc_id=$input_id
@@ -495,12 +492,12 @@ function set_pct_id(){
     done
 }
 
-function set_pct_hostname(){
+function set_pct_hostname() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt容器名称 [默认OpenWrt]:" input_hostname || echo
         input_hostname=${input_hostname:-OpenWrt}
-        local check_input_hostname=`echo $input_hostname | sed 's/[a-zA-Z0-9]//g' | sed 's/[_.-]//g'`
+        local check_input_hostname=$(echo $input_hostname | sed 's/[a-zA-Z0-9]//g' | sed 's/[_.-]//g')
         if [[ -n $check_input_hostname ]]; then
             __error_msg "输入错误, 请重新输入! "
         else
@@ -510,7 +507,7 @@ function set_pct_hostname(){
     done
 }
 
-function set_pct_rootfssize(){
+function set_pct_rootfssize() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt磁盘大小 [单位GB, 默认2]:" input_rootfssize || echo
@@ -525,7 +522,7 @@ function set_pct_rootfssize(){
     done
 }
 
-function set_pct_cores(){
+function set_pct_cores() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt CPU核心数 [默认4]:" input_cores || echo
@@ -540,7 +537,7 @@ function set_pct_cores(){
     done
 }
 
-function set_pct_memory(){
+function set_pct_memory() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt内存大小 [单位MB, 默认1024]:" input_memory || echo
@@ -555,7 +552,7 @@ function set_pct_memory(){
     done
 }
 
-function set_pct_swap(){
+function set_pct_swap() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt Swap交换区大小 [单位MB, PVE系统默认值512]:" input_swap || echo
@@ -570,7 +567,7 @@ function set_pct_swap(){
     done
 }
 
-function set_pct_onboot(){
+function set_pct_onboot() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt是否开机自启 [0关闭, 1开启, 默认1]:" input_onboot || echo
@@ -580,20 +577,20 @@ function set_pct_onboot(){
             Lxc_onboot=0
             Lxc_order=1
             break
-        ;;
+            ;;
         1)
             Lxc_onboot=1
             set_pct_order
             break
-        ;;
+            ;;
         *)
             __error_msg "输入错误, 请重新输入! "
-        ;;
+            ;;
         esac
     done
 }
 
-function set_pct_order(){
+function set_pct_order() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt启动顺序数字 [默认1]:" input_order || echo
@@ -608,7 +605,7 @@ function set_pct_order(){
     done
 }
 
-function set_pct_net(){
+function set_pct_net() {
     echo
     echo "网络接口vmbr0为PVE自带, 其它需在PVE网络中手动创建"
     while :; do
@@ -631,15 +628,15 @@ function lxc_prepare() {
     fi
 
     local net_conf=""
-    for ((i=0; i<$Lxc_net; i++)); do
-        if [[ $i -eq $((Lxc_net-1)) ]]; then
+    for ((i = 0; i < $Lxc_net; i++)); do
+        if [[ $i -eq $((Lxc_net - 1)) ]]; then
             net_conf+="--net${i} bridge=vmbr${i},name=eth$i"
         else
             net_conf+="--net${i} bridge=vmbr${i},name=eth$i "
         fi
     done
 
-    cat > $Lxc_Path/$Lxc_id <<-EOF
+    cat >$Lxc_Path/$Lxc_id <<-EOF
 pct create $Lxc_id \\
 local:vztmpl/openwrt.rootfs.tar.gz \\
 --rootfs local-lvm:$Lxc_rootfssize \\
@@ -657,87 +654,87 @@ $net_conf \\
 EOF
 }
 
-function lxc_create(){
+function lxc_create() {
     [[ ! -d $Lxc_Path ]] && mkdir -p $Lxc_Path || rm -rf $Lxc_Path/*
-    
+
     settings_show
 
     read -t 120 -p "Y/y继续, N/n返回: " input_goon || echo
     input_goon=${input_goon:-y}
     case $input_goon in
-    y|Y)
+    y | Y)
         echo
-    ;;
-    n|N)
+        ;;
+    n | N)
         return
-    ;;
+        ;;
     *)
         __error_msg "输入错误, 请重新输入! "
-    ;;
+        ;;
     esac
-    
+
     __yellow_color "开始创建OpenWrt lxc容器..."
-    
+
     lxc_prepare
-    
+
     echo
     local enable_configre_covery=n
     while :; do
         read -t 60 -p "Y/y备份OpenWrt文件; N/n不备份OpenWrt配置: " enable_config_backup || echo
         enable_config_backup=${enable_config_backup:-y}
         case $enable_config_backup in
-        y|Y)
-            local openwrt_status=`pct status $Lxc_id | awk '{print $2}'`
+        y | Y)
+            local openwrt_status=$(pct status $Lxc_id | awk '{print $2}')
             case $openwrt_status in
             running)
                 config_backup
                 enable_configre_covery=y
-            ;;
+                ;;
             stopped)
                 echo
                 __green_color "OpenWrt处于关机状态, 马上为您开机! "
                 lxc_start
                 config_backup
                 enable_configre_covery=y
-            ;;
+                ;;
             *)
                 __warning_msg "容器不存在, 无需备份! "
-            ;;
+                ;;
             esac
             break
-        ;;
-        n|N)
+            ;;
+        n | N)
             break
-        ;;
+            ;;
         *)
             __error_msg "输入错误, 请重新输入! "
-        ;;
+            ;;
         esac
     done
-    
-    if [[ -n `ls /dev/disk/by-id | grep "$Lxc_id--disk"` ]]; then
+
+    if [[ -n $(ls /dev/disk/by-id | grep "$Lxc_id--disk") ]]; then
         echo
-        __warning_msg "是否删除$Lxc_id容器？"
+        __warning_msg "是否删除${Lxc_id}容器?"
         while :; do
             read -t 60 -p "Y/y继续; N/n返回: " input_deletelxc || echo
             input_deletelxc=${input_deletelxc:-y}
             case $input_deletelxc in
-            y|Y)
+            y | Y)
                 echo
-                __green_color "正在删除$Lxc_id容器..."
+                __green_color "正在删除${Lxc_id}容器..."
                 pct destroy $Lxc_id --destroy-unreferenced-disks 1 --purge 1 --force 1
                 break
-            ;;
-            n|N)
+                ;;
+            n | N)
                 return
-            ;;
+                ;;
             *)
                 __error_msg "输入错误, 请重新输入! "
-            ;;
+                ;;
             esac
         done
     fi
-    
+
     if [[ -f $Lxc_Path/$Lxc_id ]]; then
         echo
         __green_color "正在创建新容器..."
@@ -757,7 +754,7 @@ function lxc_create(){
     fi
 }
 
-function lxc_start(){
+function lxc_start() {
     echo
     __green_color "启动OpenWrt, 请耐心等待约1分钟..."
     pct start $Lxc_id
@@ -765,14 +762,14 @@ function lxc_start(){
     local times=0
     while :; do
         let times+=1
-        local openwrt_status=`pct status $Lxc_id | awk '{print $2}'`
+        local openwrt_status=$(pct status $Lxc_id | awk '{print $2}')
         case $openwrt_status in
         running)
             __success_msg "OpenWrt启动成功! "
             break
-        ;;
+            ;;
         *)
-            if [[ $times -le 5 ]]; then                
+            if [[ $times -le 5 ]]; then
                 echo "OpenWrt启动中... 5s后进行第${times}次尝试! "
                 sleep 5
             elif [[ $times -gt 5 ]]; then
@@ -780,33 +777,33 @@ function lxc_start(){
                 pause
                 times=0
             fi
-        ;;
+            ;;
         esac
     done
 }
 
-function config_backup(){
+function config_backup() {
     [[ ! -d $Bak_Path ]] && mkdir -p $Bak_Path || rm -rf $Bak_Path/*
-    
+
     echo
     __green_color "开始备份配置..."
     if [[ ! -f $Upgrade_File ]]; then
         pct pull $Lxc_id /etc/sysupgrade.conf $Upgrade_File
     fi
-    
+
     for file in $(cat $Upgrade_File | grep -E "^/"); do
         local bak_file=$Bak_Path$file
         echo "备份OpenWrt: $file"
-        [[ ! -d $Bak_Path`dirname "$file"` ]] && mkdir -p $Bak_Path`dirname "${file}"`
+        [[ ! -d "$Bak_Path$(dirname "$file")" ]] && mkdir -p "$Bak_Path$(dirname "$file")"
         pct pull $Lxc_id $file $bak_file
     done
-    
+
     [[ -d $Backup_Path ]] && rm -rf $Backup_Path
     mv -f $Bak_Path $Backup_Path
     __success_msg "OpenWrt的相关文件已经备份至:$Backup_Path"
 }
 
-function config_recovery(){
+function config_recovery() {
     echo
     __green_color "开始恢复配置..."
     if [[ ! -f $Upgrade_File ]]; then
@@ -817,21 +814,21 @@ function config_recovery(){
         local rec_file=$Backup_Path$file
         if [[ -s $rec_file ]]; then
             echo "恢复OpenWrt: $file"
-            pct push $Lxc_id $rec_file $file  
+            pct push $Lxc_id $rec_file $file
             if [[ $? -ne 0 ]]; then
-                __error_msg "恢复${line}失败! "
+                __error_msg "恢复 ${line} 失败! "
             fi
         fi
     done
     __success_msg "恢复配置完成! "
 }
 
-function install_tools(){
+function install_tools() {
     echo
     __yellow_color "开始检测脚本依赖..."
     local pve_pkgs=(curl wget squashfs-tools)
-    apt update > /dev/null 2>&1
-    for pkg in ${pve_pkgs[*]}; do
+    apt update >/dev/null 2>&1
+    for pkg in "${pve_pkgs[@]}"; do
         if [[ $(apt list --installed 2>/dev/null | grep -Eo "^${pkg}\/" | wc -l) -ge 1 ]]; then
             __info_msg "${pkg} 已安装"
         else
@@ -846,8 +843,8 @@ function download_with_retry() {
     local url=$1
     local output=$2
     local error_output=""
-    
-    wget -q --timeout=5 --tries=2 "$url" -O "$output" 2>&1 > /dev/null
+
+    wget -q --timeout=5 --tries=2 "$url" -O "$output" > /dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         error_output=$(curl -fsSL "$url" -o "$output" 2>&1)
         if [[ $? -ne 0 ]]; then
@@ -880,7 +877,7 @@ function script_version() {
         pause
         return
     fi
-    
+
     chmod +x $Script_Path/version
 }
 
@@ -916,13 +913,14 @@ function script_download() {
 function script_udpate() {
     settings_load
     script_version
+
     if [[ -s $Script_Path/version ]]; then
-        source $Script_Path/version 2 > /dev/null
+        source $Script_Path/version 2 >/dev/null
     fi
 
     while :; do
         clear
-cat <<-EOF
+        cat <<-EOF
 `__green_color "     OpenWrt自动安装升级脚本  $Version"`
 ┌────────────────────────────────────────────────────┐
       最新版本: $LatestVersion
@@ -933,17 +931,17 @@ EOF
         read -t 60 enable_script_udpate
         enable_script_udpate=${enable_script_udpate:-n}
         case $enable_script_udpate in
-        y|Y)
+        y | Y)
             script_download
             pause
             break
-        ;;
-        n|N)
+            ;;
+        n | N)
             break
-        ;;
+            ;;
         *)
             __error_msg "输入错误, 请重新输入! "
-        ;;
+            ;;
         esac
     done
 }
@@ -992,10 +990,10 @@ function script_help() {
 EOF
 }
 
-function linux_uname(){
-    if [[ -n `uname -a | grep -i "OpenWrt"` ]]; then
+function linux_uname() {
+    if [[ -n $(uname -a | grep -i "OpenWrt") ]]; then
         clear
-        echo "`uname -a`"
+        uname -a
         echo
         __error_msg "脚本需运行在PVE环境, 检测当前为OpenWrt! "
         echo
@@ -1013,22 +1011,20 @@ function linux_uname(){
     fi
 }
 
-function files_clean(){
-    [[ -d $Openwrt_Path ]] && rm -rf $Openwrt_Path > /dev/null 2>&1
+function files_clean() {
+    [[ -d $Openwrt_Path ]] && rm -rf $Openwrt_Path >/dev/null 2>&1
 }
-
 
 linux_uname
 settings_init
 network_check &
 
-while true
-do
+while true; do
     settings_load
     clear
-    
+
     cat <<-EOF
-`__green_color "     OpenWrt自动安装升级脚本  $Version"`
+$(__green_color "     OpenWrt自动安装升级脚本  $Version")
 ┌────────────────────────────────────────────────────┐
        1. 下载固件+更新CT模板+创建LXC容器
        2. 下载固件+更新CT模板
@@ -1056,45 +1052,44 @@ EOF
         sleep 10
         files_clean
         pause
-    ;;
+        ;;
     2)
         ct_update
         pause
-    ;;
+        ;;
     3)
         lxc_create
         pause
-    ;;
+        ;;
     4)
         set_pct_id
         config_backup
         pause
-    ;;
+        ;;
     5)
         set_pct_id
         config_recovery
         pause
-    ;;
+        ;;
     6)
         install_tools
         pause
-    ;;
+        ;;
     7)
         script_udpate
-    ;;
+        ;;
     8)
         settings_modify
-    ;;
+        ;;
     9)
         script_help
         pause
-    ;;
+        ;;
     0)
         files_clean
         clear
         exit 0
-    ;;
-    *)
-    ;;
+        ;;
+    *) ;;
     esac
 done
