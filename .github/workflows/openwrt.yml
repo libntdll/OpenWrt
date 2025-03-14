@@ -27,7 +27,7 @@ on:
           - '21.02'
           - '19.07'
           - '18.06'
-      PACKAGES_REPO:
+      PACKAGES_BRANCH:
         description: '自定义插件库分支(注意适配Luci版本)'
         required: false
         default: 'default'
@@ -133,7 +133,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         INPUTS_LUCI_EDITION="${{ github.event.inputs.LUCI_EDITION }}"
-        INPUTS_PACKAGES_REPO="${{ github.event.inputs.PACKAGES_REPO }}"
+        INPUTS_PACKAGES_BRANCH="${{ github.event.inputs.PACKAGES_BRANCH }}"
         INPUTS_CONFIG_FILE="${{ github.event.inputs.CONFIG_FILE }}"
         INPUTS_BIOS_MODE="${{ github.event.inputs.BIOS_MODE }}"        
         INPUTS_ENABLE_CCACHE="${{ github.event.inputs.ENABLE_CCACHE }}"
@@ -210,7 +210,7 @@ jobs:
           "client_payload": {
             "target": "${{ env.MATRIX_TARGET }}",
             "LUCI_EDITION": "${{ env.LUCI_EDITION }}",
-            "PACKAGES_REPO": "${{ env.PACKAGES_REPO }}",
+            "PACKAGES_BRANCH": "${{ env.PACKAGES_BRANCH }}",
             "CONFIG_FILE": "${{ env.CONFIG_FILE }}",
             "BIOS_MODE": "${{ env.BIOS_MODE }}",
             "ENABLE_CCACHE": "${{ env.ENABLE_CCACHE }}",
