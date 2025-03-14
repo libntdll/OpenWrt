@@ -25,14 +25,7 @@ on:
         description: '自定义插件库分支(注意适配Luci版本)'
         required: false
         default: 'default'
-        type: choice
-        options:
-          - 'default'
-          - '18.06'
-          - 'lede'
-          - 'main'
-          - 'master'
-          - 'openwrt'
+        type: string
       CONFIG_FILE:
         description: '.config配置文件'
         required: false
@@ -54,7 +47,7 @@ on:
           - 'legacy'
           - 'both'
       ENABLE_CCACHE:
-        description: '缓存加速'
+        description: '开启缓存加速'
         required: false
         default: 'default'
         type: choice
