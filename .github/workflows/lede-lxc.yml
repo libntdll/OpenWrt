@@ -120,7 +120,6 @@ jobs:
         INPUTS_ENABLE_CCACHE="${{ github.event.inputs.ENABLE_CCACHE }}"
         INPUTS_UPLOAD_FIRMWARE="${{ github.event.inputs.UPLOAD_FIRMWARE }}"
         INPUTS_UPLOAD_RELEASE="${{ github.event.inputs.UPLOAD_RELEASE }}"
-        INPUTS_ENABLE_SSH="${{ github.event.inputs.ENABLE_SSH }}"
         
         common_sh_url="https://raw.githubusercontent.com/libntdll/common/main/common.sh"
         curl -fsSL ${common_sh_url} -o $GITHUB_WORKSPACE/common.sh
@@ -153,7 +152,7 @@ jobs:
         source $GITHUB_WORKSPACE/common.sh && do_diy
       
     - name: SSH远程连接(make menuconfig)
-      if: env.ENABLE_SSH == 'true'
+      if: ${{ github.event.inputs.ENABLE_SSH == 'true' }}
       uses: danshui-git/debugger-action@main
       
     - name: 生成"${{ matrix.target }}"配置文件
@@ -187,5 +186,17 @@ jobs:
         -X POST https://api.github.com/repos/${{ github.repository }}/dispatches \
         -H "Accept: application/vnd.github.everest-preview+json" \
         -H "Authorization: token ${{ secrets.REPO_TOKEN }}" \
-        -d '{"event_type": "编译${{ env.MATRIX_TARGET }}固件", "client_payload": {"target": "${{ env.MATRIX_TARGET }}"}}'
+        -d '{
+          "event_type": "编译${{ env.MATRIX_TARGET }}固件",
+          "client_payload": {
+            "target": "${{ env.MATRIX_TARGET }}",
+            "LUCI_EDITION": "${{ github.event.inputs.LUCI_EDITION }}",
+            "CONFIG_FILE": "${{ github.event.inputs.CONFIG_FILE }}",
+            "BIOS_MODE": "${{ github.event.inputs.BIOS_MODE }}",
+            "ENABLE_CCACHE": "${{ github.event.inputs.ENABLE_CCACHE }}",
+            "UPLOAD_FIRMWARE": "${{ github.event.inputs.UPLOAD_FIRMWARE }}",
+            "UPLOAD_RELEASE": "${{ github.event.inputs.UPLOAD_RELEASE }}"
+          }
+        }'
+
         
