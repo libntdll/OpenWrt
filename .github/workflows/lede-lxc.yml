@@ -22,7 +22,7 @@ on:
           - '23.05'
           - '18.06'
       PACKAGES_REPO:
-        description: '自定义插件库分支'
+        description: '自定义插件库分支(注意适配Luci版本)'
         required: false
         default: 'default'
         type: choice
