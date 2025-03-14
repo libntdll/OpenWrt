@@ -24,6 +24,7 @@ env:
   PUSH_PLUS_TOKEN: ${{ secrets.PUSH_PLUS_TOKEN }}
   CLIENT_PAYLOAD_TARGET: ${{ github.event.client_payload.target }}
   INPUTS_LUCI_EDITION: ${{ github.event.client_payload.LUCI_EDITION }}
+  INPUTS_PACKAGES_BRANCH: ${{ github.event.client_payload.PACKAGES_BRANCH }}
   INPUTS_CONFIG_FILE: ${{ github.event.client_payload.CONFIG_FILE }}
   INPUTS_BIOS_MODE: ${{ github.event.client_payload.BIOS_MODE }}
   INPUTS_ENABLE_CCACHE: ${{ github.event.client_payload.ENABLE_CCACHE }}
