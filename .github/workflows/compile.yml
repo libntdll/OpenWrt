@@ -23,12 +23,12 @@ env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   PUSH_PLUS_TOKEN: ${{ secrets.PUSH_PLUS_TOKEN }}
   CLIENT_PAYLOAD_TARGET: ${{ github.event.client_payload.target }}
-  LUCI_EDITION: ${{ github.event.client_payload.LUCI_EDITION == 'default' && '' || github.event.client_payload.LUCI_EDITION }}
-  CONFIG_FILE: ${{ github.event.client_payload.CONFIG_FILE == 'default' && '' || github.event.client_payload.CONFIG_FILE }}
-  BIOS_MODE: ${{ github.event.client_payload.BIOS_MODE == 'default' && '' || github.event.client_payload.BIOS_MODE }}
-  ENABLE_CCACHE: ${{ github.event.client_payload.ENABLE_CCACHE == 'default' && '' || github.event.client_payload.ENABLE_CCACHE }}
-  UPLOAD_FIRMWARE: ${{ github.event.client_payload.UPLOAD_FIRMWARE == 'default' && '' || github.event.client_payload.UPLOAD_FIRMWARE }}
-  UPLOAD_RELEASE: ${{ github.event.client_payload.UPLOAD_RELEASE == 'default' && '' || github.event.client_payload.UPLOAD_RELEASE }}
+  INPUTS_LUCI_EDITION: ${{ github.event.client_payload.LUCI_EDITION }}
+  INPUTS_CONFIG_FILE: ${{ github.event.client_payload.CONFIG_FILE }}
+  INPUTS_BIOS_MODE: ${{ github.event.client_payload.BIOS_MODE }}
+  INPUTS_ENABLE_CCACHE: ${{ github.event.client_payload.ENABLE_CCACHE }}
+  INPUTS_UPLOAD_FIRMWARE: ${{ github.event.client_payload.UPLOAD_FIRMWARE }}
+  INPUTS_UPLOAD_RELEASE: ${{ github.event.client_payload.UPLOAD_RELEASE }}
   TZ: Asia/Shanghai
 
 jobs:

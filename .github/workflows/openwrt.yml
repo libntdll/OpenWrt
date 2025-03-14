@@ -196,12 +196,11 @@ jobs:
           "event_type": "编译${{ env.MATRIX_TARGET }}固件",
           "client_payload": {
             "target": "${{ env.MATRIX_TARGET }}",
-            "LUCI_EDITION": "${{ github.event.inputs.LUCI_EDITION }}",
-            "CONFIG_FILE": "${{ github.event.inputs.CONFIG_FILE }}",
-            "BIOS_MODE": "${{ github.event.inputs.BIOS_MODE }}",
-            "ENABLE_CCACHE": "${{ github.event.inputs.ENABLE_CCACHE }}",
-            "UPLOAD_FIRMWARE": "${{ github.event.inputs.UPLOAD_FIRMWARE }}",
-            "UPLOAD_RELEASE": "${{ github.event.inputs.UPLOAD_RELEASE }}"
+            "LUCI_EDITION": "${{ env.LUCI_EDITION }}",
+            "CONFIG_FILE": "${{ env.CONFIG_FILE }}",
+            "BIOS_MODE": "${{ env.BIOS_MODE }}",
+            "ENABLE_CCACHE": "${{ env.ENABLE_CCACHE }}",
+            "UPLOAD_FIRMWARE": "${{ env.UPLOAD_FIRMWARE }}",
+            "UPLOAD_RELEASE": "${{ env.UPLOAD_RELEASE }}"
           }
-        }'
-        
+        }'        
