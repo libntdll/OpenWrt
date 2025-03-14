@@ -27,8 +27,20 @@ on:
           - '21.02'
           - '19.07'
           - '18.06'
+      PACKAGES_REPO:
+        description: '自定义插件库分支'
+        required: false
+        default: 'default'
+        type: choice
+        options:
+          - 'default'
+          - '18.06'
+          - 'lede'
+          - 'main'
+          - 'master'
+          - 'openwrt'
       CONFIG_FILE:
-        description: '配置文件'
+        description: '.config配置文件'
         required: false
         default: 'default'
         type: choice
@@ -121,6 +133,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         INPUTS_LUCI_EDITION="${{ github.event.inputs.LUCI_EDITION }}"
+        INPUTS_PACKAGES_REPO="${{ github.event.inputs.PACKAGES_REPO }}"
         INPUTS_CONFIG_FILE="${{ github.event.inputs.CONFIG_FILE }}"
         INPUTS_BIOS_MODE="${{ github.event.inputs.BIOS_MODE }}"        
         INPUTS_ENABLE_CCACHE="${{ github.event.inputs.ENABLE_CCACHE }}"
@@ -197,6 +210,7 @@ jobs:
           "client_payload": {
             "target": "${{ env.MATRIX_TARGET }}",
             "LUCI_EDITION": "${{ env.LUCI_EDITION }}",
+            "PACKAGES_REPO": "${{ env.PACKAGES_REPO }}",
             "CONFIG_FILE": "${{ env.CONFIG_FILE }}",
             "BIOS_MODE": "${{ env.BIOS_MODE }}",
             "ENABLE_CCACHE": "${{ env.ENABLE_CCACHE }}",
