@@ -58,6 +58,7 @@ on:
           - 'x86_64'
           - 'x86_32'
           - '.config'
+          # 在此添加更多...
       BIOS_MODE:
         description: '固件引导模式'
         required: false
