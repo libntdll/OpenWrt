@@ -86,7 +86,7 @@ jobs:
         source $GITHUB_WORKSPACE/common.sh && init_environment
 
     - name: 下载"${{ matrix.target }}"源码
-      working-directory: /${{ matrix.target }}
+      working-directory: /${{ env.SOURCE_WORKSPACE }}
       run: |
         source $GITHUB_WORKSPACE/common.sh && git_clone_source
         
