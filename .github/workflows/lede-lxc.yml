@@ -188,7 +188,7 @@ jobs:
 
     - name: 更新REPO
       continue-on-error: true
-      if: env.REPO_TOKEN
+      if: ${{ env.REPO_TOKEN && github.event.inputs.ENABLE_SSH == 'true' }}
       run: |
         source $GITHUB_WORKSPACE/common.sh && update_repo
         
