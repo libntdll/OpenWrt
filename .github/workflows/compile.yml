@@ -51,7 +51,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: 获取设置
+    - name: 设置环境变量
       run: |
         cd $GITHUB_WORKSPACE
         
