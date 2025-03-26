@@ -229,4 +229,4 @@ jobs:
             "UPLOAD_FIRMWARE": "${{ env.UPLOAD_FIRMWARE }}",
             "UPLOAD_RELEASE": "${{ env.UPLOAD_RELEASE }}"
           }
-        }'        
+        }'

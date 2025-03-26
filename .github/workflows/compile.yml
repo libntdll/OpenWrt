@@ -192,4 +192,3 @@ jobs:
       if: steps.compile.outcome == 'success' && env.PUSH_PLUS_TOKEN && env.NOTICE_TYPE == 'PUSH' || steps.compile.outcome == 'success' && env.TELEGRAM_CHAT_ID && env.TELEGRAM_BOT_TOKEN && env.NOTICE_TYPE == 'TG'
       run: |
         source $GITHUB_WORKSPACE/common.sh && notice_end
-        

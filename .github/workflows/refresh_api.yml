@@ -66,4 +66,3 @@ jobs:
         file_glob: true
         tag: ${{ github.event.inputs.RELEASE_TAG }}
         overwrite: true
-        

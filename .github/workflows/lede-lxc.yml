@@ -224,5 +224,3 @@ jobs:
             "UPLOAD_RELEASE": "${{ env.UPLOAD_RELEASE }}"
           }
         }'
-
-        
