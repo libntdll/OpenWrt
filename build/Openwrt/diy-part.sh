@@ -14,10 +14,10 @@ cat >>"$FILE_DEFAULT_UCI" <<-EOF
 #uci set network.lan.ifname='eth0 eth1'                         # 设置lan口物理接口为eth0、eth1
 #uci set network.lan.ifname='eth0'                              # 设置lan口物理接口为eth0
 uci set network.lan.proto='static'                              # lan口静态IP
-uci set network.lan.ipaddr='192.168.1.2'                        # IPv4 地址(openwrt后台地址)
+uci set network.lan.ipaddr='10.0.0.2'                           # IPv4 地址(openwrt后台地址)
 uci set network.lan.netmask='255.255.255.0'                     # IPv4 子网掩码
-uci set network.lan.gateway='192.168.1.1'                       # IPv4 网关
-uci set network.lan.broadcast='192.168.1.255'                   # IPv4 广播
+uci set network.lan.gateway='10.0.0.1'                          # IPv4 网关
+uci set network.lan.broadcast='10.0.0.255'                      # IPv4 广播
 uci add_list network.lan.dns='223.5.5.5'                        # OpenWrt官方源码,dns设置
 uci add_list network.lan.dns='114.114.114.114'                  # OpenWrt官方源码,dns设置
 #uci set network.lan.dns='223.5.5.5 114.114.114.114'            # DNS(多个DNS要用空格分开)
@@ -34,7 +34,7 @@ uci commit network
 #uci set dhcp.@dnsmasq[0].cachesize='0'                         # DHCP/DNS→高级设置→DNS 查询缓存的大小——设置为'0'
 #uci add dhcp domain
 #uci set dhcp.@domain[0].name='openwrt'                         # 网络→主机名→主机目录——“openwrt”
-#uci set dhcp.@domain[0].ip='192.168.1.2'                       # 对应IP解析——192.168.1.2
+#uci set dhcp.@domain[0].ip='10.0.0.2'                          # 对应IP解析——10.0.0.2
 #uci add dhcp domain
 #uci set dhcp.@domain[1].name='cdn.jsdelivr.net'                # 网络→主机名→主机目录——“cdn.jsdelivr.net”
 #uci set dhcp.@domain[1].ip='104.16.86.20'                      # 对应IP解析——'104.16.86.20'
