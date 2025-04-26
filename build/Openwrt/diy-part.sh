@@ -62,9 +62,9 @@ uci set ttyd.@ttyd[0].command='/bin/login -f root'              # 设置ttyd免�
 uci commit ttyd
 EOF
 
-if [ -n "$OPENWRT_RELEASE_PATH" ]; then  
-	# echo "增加个性名字: ${GITHUB_ACTOR}"
-	# sed -i "s/%D %V %C/${GITHUB_ACTOR} compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ %D %V %C/g" ${OPENWRT_RELEASE_PATH}
+if [ -n "$OPENWRT_RELEASE_PATH" ]; then
+	# echo "增加个性名字: $GITHUB_ACTOR"
+	# sed -i "s/%D %V %C/$GITHUB_ACTOR compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ %D %V %C/g" "$OPENWRT_RELEASE_PATH"
 	sed -i "s/%D %V %C/Ss. compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ %D %V %C/g" "$OPENWRT_RELEASE_PATH"
 fi
 
