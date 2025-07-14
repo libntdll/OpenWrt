@@ -81,6 +81,7 @@ Repository="libntdll/openwrt"
 Tag_name="AutoUpdate-x86-lxc"
 Github_api="zzz_api"
 Priority="default"
+Lxc_local="local-lvm"
 Lxc_id=100
 Lxc_hostname="OpenWrt"
 Lxc_cores=4
@@ -120,6 +121,11 @@ EOF
             Priority="default"
             need_settings_save="true"
             default_settings+=("固件格式")
+        fi
+        if [[ -z $Lxc_local ]]; then
+            Lxc_local="local-lvm"
+            need_settings_save="true"
+            default_settings+=("存储分区")
         fi
         if [[ -z $Lxc_id ]]; then
             Lxc_id=100
@@ -202,6 +208,7 @@ $(__green_color "     OpenWrt自动安装升级脚本  $Version")
       API 文件: $Github_api
       固件格式: $Priority
   ──────────────────────────────────────────────────
+      存储分区: $Lxc_local
       容器  ID: $Lxc_id
       容器名称: $Lxc_hostname
       CPU 核心: $Lxc_cores
@@ -222,14 +229,15 @@ EOF
             set_release_tag
             set_release_api
             set_firmware_format
-            set_pct_id
-            set_pct_hostname
-            set_pct_rootfssize
-            set_pct_cores
-            set_pct_memory
-            set_pct_swap
-            set_pct_onboot
-            set_pct_net
+            set_lxc_local
+            set_lxc_id
+            set_lxc_hostname
+            set_lxc_rootfssize
+            set_lxc_cores
+            set_lxc_memory
+            set_lxc_swap
+            set_lxc_onboot
+            set_lxc_net
             settings_save
             pause
             break
@@ -250,6 +258,7 @@ Repository="$Repository"
 Tag_name="$Tag_name"
 Github_api="$Github_api"
 Priority="$Priority"
+Lxc_local="$Lxc_local"
 Lxc_id=$Lxc_id
 Lxc_hostname="$Lxc_hostname"
 Lxc_cores=$Lxc_cores
@@ -269,6 +278,7 @@ function settings_show() {
     echo
     __green_color "当前配置: "
     __green_color "  ──────────────────────────────────────────────────"
+    echo "    存储分区: $Lxc_local"
     echo "    容器  ID: $Lxc_id"
     echo "    容器名称: $Lxc_hostname"
     echo "    CPU 核心: $Lxc_cores"
@@ -475,7 +485,22 @@ function ct_update() {
     fi
 }
 
-function set_pct_id() {
+function set_lxc_local() {
+    echo
+    while :; do
+        read -t 60 -p "请输入存储分区 [默认local-lvm]:" input_local || echo
+        input_local=${input_local:-local-lvm}
+        local check_local=$(echo $input_local | sed 's/[a-zA-Z0-9]//g' | sed 's/[_.-]//g')
+        if [[ -n $check_local ]]; then
+            __error_msg "输入错误, 请重新输入! "
+        else
+            Lxc_local=$input_local
+            break
+        fi
+    done
+}
+
+function set_lxc_id() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt容器ID [默认100]:" input_id || echo
@@ -492,7 +517,7 @@ function set_pct_id() {
     done
 }
 
-function set_pct_hostname() {
+function set_lxc_hostname() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt容器名称 [默认OpenWrt]:" input_hostname || echo
@@ -507,7 +532,7 @@ function set_pct_hostname() {
     done
 }
 
-function set_pct_rootfssize() {
+function set_lxc_rootfssize() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt磁盘大小 [单位GB, 默认2]:" input_rootfssize || echo
@@ -522,7 +547,7 @@ function set_pct_rootfssize() {
     done
 }
 
-function set_pct_cores() {
+function set_lxc_cores() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt CPU核心数 [默认4]:" input_cores || echo
@@ -537,7 +562,7 @@ function set_pct_cores() {
     done
 }
 
-function set_pct_memory() {
+function set_lxc_memory() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt内存大小 [单位MB, 默认1024]:" input_memory || echo
@@ -552,7 +577,7 @@ function set_pct_memory() {
     done
 }
 
-function set_pct_swap() {
+function set_lxc_swap() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt Swap交换区大小 [单位MB, PVE系统默认值512]:" input_swap || echo
@@ -567,7 +592,7 @@ function set_pct_swap() {
     done
 }
 
-function set_pct_onboot() {
+function set_lxc_onboot() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt是否开机自启 [0关闭, 1开启, 默认1]:" input_onboot || echo
@@ -580,7 +605,7 @@ function set_pct_onboot() {
             ;;
         1)
             Lxc_onboot=1
-            set_pct_order
+            set_lxc_order
             break
             ;;
         *)
@@ -590,7 +615,7 @@ function set_pct_onboot() {
     done
 }
 
-function set_pct_order() {
+function set_lxc_order() {
     echo
     while :; do
         read -t 60 -p "请输入OpenWrt启动顺序数字 [默认1]:" input_order || echo
@@ -605,7 +630,7 @@ function set_pct_order() {
     done
 }
 
-function set_pct_net() {
+function set_lxc_net() {
     echo
     echo "网络接口vmbr0为PVE自带, 其它需在PVE网络中手动创建"
     while :; do
@@ -639,7 +664,7 @@ function lxc_prepare() {
     cat >$Lxc_Path/$Lxc_id <<-EOF
 pct create $Lxc_id \\
 local:vztmpl/openwrt.rootfs.tar.gz \\
---rootfs local-lvm:$Lxc_rootfssize \\
+--rootfs $Lxc_local:$Lxc_rootfssize \\
 --ostype unmanaged \\
 --hostname $Lxc_hostname \\
 --arch amd64 \\
@@ -844,7 +869,7 @@ function download_with_retry() {
     local output=$2
     local error_output=""
 
-    wget -q --timeout=5 --tries=2 "$url" -O "$output" > /dev/null 2>&1
+    wget -q --timeout=5 --tries=2 "$url" -O "$output" >/dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         error_output=$(curl -fsSL "$url" -o "$output" 2>&1)
         if [[ $? -ne 0 ]]; then
@@ -1062,12 +1087,12 @@ EOF
         pause
         ;;
     4)
-        set_pct_id
+        set_lxc_id
         config_backup
         pause
         ;;
     5)
-        set_pct_id
+        set_lxc_id
         config_recovery
         pause
         ;;
