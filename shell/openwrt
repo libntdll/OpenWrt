@@ -86,7 +86,7 @@ Lxc_id=100
 Lxc_hostname="OpenWrt"
 Lxc_cores=4
 Lxc_memory=1024
-Lxc_swap=512
+Lxc_swap=1024
 Lxc_rootfssize=2
 Lxc_onboot=0
 Lxc_order=1
@@ -153,7 +153,7 @@ EOF
             default_settings+=("LXC 根磁盘大小")
         fi
         if [[ -z $Lxc_swap ]]; then
-            Lxc_swap=512
+            Lxc_swap=1024
             need_settings_save="true"
             default_settings+=("LXC 交换分区")
         fi
@@ -580,8 +580,8 @@ function set_lxc_memory() {
 function set_lxc_swap() {
     echo
     while :; do
-        read -t 60 -p "请输入OpenWrt Swap交换区大小 [单位MB, PVE系统默认值512]:" input_swap || echo
-        input_swap=${input_swap:-512}
+        read -t 60 -p "请输入OpenWrt Swap交换区大小 [单位MB, PVE系统默认值1024]:" input_swap || echo
+        input_swap=${input_swap:-1024}
 
         if ! [[ $input_swap =~ ^[1-9][0-9]*$ ]]; then
             __error_msg "输入错误, 请输入非零数字! "
